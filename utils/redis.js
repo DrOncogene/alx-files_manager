@@ -3,9 +3,9 @@ import redis from 'redis';
 class RedisClient {
   constructor() {
     this.client = redis.createClient();
-    this.client.on('error', (err) => {
-      console.log(`Unable to connect to redis: ${err}`);
-      this.client.disconnect();
+    this.client.on('error', async (err) => {
+      console.log(err);
+      await this.client.disconnect();
     });
   }
 
