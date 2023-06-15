@@ -4,16 +4,16 @@ import process from 'process'
 class DBClient {
   HOST = process.env.DB_HOST || 'localhost';
   PORT = parseInt(process.env.DB_PORT) || 27017;
-  DB = process.env.DB_DATABASE || 'files_manager';
+  DB_NAME = process.env.DB_DATABASE || 'files_manager';
 
   constructor() {
-    MongoClient.connect(`mongodb://${this.HOST}:${this.PORT}`, {
-      useUnifiedTopology: true
-    })
-    .then((client) => this.client = client)
-    .catch(err => {
-      console.log(err);
-      this.client.close();
+    MongoClient.connect(`mongodb://${this.HOST}:${this.PORT}`, (err, client) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      this.client = client;
+      this.db = client.db(this.DB_NAME);
     });
   }
 
