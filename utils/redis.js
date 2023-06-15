@@ -1,5 +1,5 @@
 import redis from 'redis';
-import { promisify } from 'util'
+import { promisify } from 'util';
 
 class RedisClient {
   constructor() {
@@ -10,22 +10,22 @@ class RedisClient {
     });
   }
 
-  isAlive () {
+  isAlive() {
     return this.client.connected;
   }
-  
-  async get (key) {
+
+  async get(key) {
     const asyncGet = promisify(this.client.get).bind(this.client);
-    return await asyncGet(key);
+    return asyncGet(key);
   }
-  
-  async set (key, value, ttl) {
+
+  async set(key, value, ttl) {
     const asyncSetex = promisify(this.client.setex).bind(this.client);
     await asyncSetex(key, ttl, value.toString());
   }
-  
-  async del (key) {
-    const asyncDel = promisify(this.client.del).bind(this.client.del);
+
+  async del(key) {
+    const asyncDel = promisify(this.client.del).bind(this.client);
     await asyncDel(key);
   }
 }
