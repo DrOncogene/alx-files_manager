@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb';
+import process from 'process'
 
 class DBClient {
   HOST = process.env.DB_HOST || 'localhost';
