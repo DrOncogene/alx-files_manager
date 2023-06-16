@@ -7,8 +7,12 @@ import redisClient from '../utils/redis';
 const getConnect = async (req, res) => {
   const authHeaderEncoded = req.headers.authorization.split(' ')[1];
   const authHeader = Buffer.from(authHeaderEncoded, 'base64').toString('ascii');
-  const email = authHeader.split(':')[0];
-  const password = authHeader.split(':')[1];
+
+  const [email, password] = authHeader.split(':');
+  if (!email || !password) {
+    res.status(401).send({ error: 'Unauthorized' });
+    return;
+  }
 
   const user = await dbClient.getUser({ email, password: sha1(password) });
   if (!user) {
