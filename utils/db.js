@@ -26,7 +26,7 @@ class DBClient {
 
   isAlive() {
     if (this.CLIENT) {
-      return this.CLIENT.isConnected();
+      return true;
     }
     return false;
   }
