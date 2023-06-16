@@ -12,17 +12,17 @@ class DBClient {
 
   DB;
 
-  constructor() {
-    const url = `mongodb://${this.HOST}:${this.PORT}`;
-    MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      this.CLIENT = client;
-      this.DB = client.db(this.DB_NAME);
-    });
-  }
+  // constructor() {
+  //   const url = `mongodb://${this.HOST}:${this.PORT}`;
+  //   MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
+  //     if (err) {
+  //       console.log(err);
+  //       return;
+  //     }
+  //     this.CLIENT = client;
+  //     this.DB = client.db(this.DB_NAME);
+  //   });
+  // }
 
   isAlive() {
     if (this.CLIENT) {
