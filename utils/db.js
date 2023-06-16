@@ -2,7 +2,6 @@ import { MongoClient } from 'mongodb';
 import process from 'process';
 
 class DBClient {
-
   constructor() {
     const HOST = process.env.DB_HOST || 'localhost';
     const PORT = process.env.DB_PORT || 27017;
