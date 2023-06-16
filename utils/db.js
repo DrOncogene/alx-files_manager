@@ -43,8 +43,8 @@ class DBClient {
     return null;
   }
 
-  async getUser(email) {
-    return this.CLIENT.db().collection('users').findOne({ email });
+  async getUser(queryObj) {
+    return this.CLIENT.db().collection('users').findOne(queryObj);
   }
 }
 

@@ -13,7 +13,7 @@ const postNew = async (req, res) => {
     return;
   }
 
-  const user = await dbClient.getUser(email);
+  const user = await dbClient.getUser({ email });
   if (user) {
     res.status(400).send({ error: 'Already exist' });
     return;
