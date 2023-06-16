@@ -13,7 +13,8 @@ class DBClient {
   DB;
 
   constructor() {
-    MongoClient.connect(`mongodb://${this.HOST}:${this.PORT}`, (err, client) => {
+    const url = `mongodb://${this.HOST}:${this.PORT}`;
+    MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
       if (err) {
         console.log(err);
         return;
