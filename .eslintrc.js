@@ -16,6 +16,7 @@ module.exports = {
       ecmaVersion: 2018,
       sourceType: 'module',
     },
+    parser: "@babel/eslint-parser",
     plugins: ['jest'],
     rules: {
       'max-classes-per-file': 'off',
