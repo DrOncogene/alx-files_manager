@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import process from 'process';
 
 class DBClient {
@@ -49,7 +49,7 @@ class DBClient {
 
   async getFile(id) {
     if (!id) return null;
-    return this.CLIENT.db().collection('files').findOne({ _id: id });
+    return this.CLIENT.db().collection('files').findOne({ _id: ObjectId(id) });
   }
 
   async addFile(fileObj) {
