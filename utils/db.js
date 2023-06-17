@@ -43,8 +43,30 @@ class DBClient {
     return null;
   }
 
-  async getUser(queryObj) {
-    return this.CLIENT.db().collection('users').findOne(queryObj);
+  async getUser(userObj) {
+    return this.CLIENT.db().collection('users').findOne(userObj);
+  }
+
+  async getFile(id) {
+    if (!id) return null;
+    return this.CLIENT.db().collection('files').findOne({ _id: id });
+  }
+
+  async addFile(fileObj) {
+    const { data, ...datalessFile } = fileObj;
+    const res = await this.CLIENT.db().collection('files').insertOne(fileObj);
+    if (res.result.ok) {
+      return {
+        id: res.insertedId,
+        userId: datalessFile.userId,
+        name: datalessFile.name,
+        type: datalessFile.type,
+        parentId: datalessFile.parentId,
+        isPublic: datalessFile.isPublic,
+        data,
+      };
+    }
+    return null;
   }
 }
 
