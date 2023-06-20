@@ -49,14 +49,15 @@ class DBClient {
     return this.CLIENT.db().collection('users').findOne(userObj);
   }
 
-  async getFile(id) {
-    if (id === null || id === undefined) return null;
-    return this.CLIENT.db().collection('files').findOne({ _id: ObjectId(id) });
+  async getFile(queryObj) {
+    console.log(queryObj);
+    return this.CLIENT.db().collection('files').findOne(queryObj);
   }
 
   async getUserFiles(userId, parentId, page) {
+    console.log(userId, parentId, page);
     return this.CLIENT.db().collection('files').aggregate([
-      { $match: { userId, parentId } },
+      { $match: { userId: ObjectId(userId), parentId: ObjectId(parentId) } },
       { $skip: page === 0 ? 0 : page * MAX_PAGE_SIZE },
       { $limit: MAX_PAGE_SIZE },
       { $set: { id: '$_id' } },

@@ -38,7 +38,7 @@ const postUpload = async (req, res) => {
   }
 
   if (parentId) {
-    const parent = await dbClient.getFile(parentId);
+    const parent = await dbClient.getFile({ _id: ObjectId(parentId) });
     if (!parent) {
       res.status(400).send({ error: 'Parent not found' });
       return;
@@ -51,10 +51,10 @@ const postUpload = async (req, res) => {
   let file;
   if (type === 'folder') {
     file = await dbClient.addFile({
-      userId: user._id.toString(),
+      userId: ObjectId(userId),
       name,
       type,
-      parentId,
+      parentId: ObjectId(parentId),
       isPublic,
       data,
     });
@@ -69,10 +69,10 @@ const postUpload = async (req, res) => {
     });
 
     file = await dbClient.addFile({
-      userId: user._id.toString(),
+      userId: ObjectId(userId),
       name,
       type,
-      parentId,
+      parentId: ObjectId(parentId),
       isPublic,
       data,
       localPath: `${filePath}`,
@@ -98,7 +98,8 @@ const getShow = async (req, res) => {
   }
 
   const { id } = req.params;
-  const file = dbClient.getFile(id);
+  const file = await dbClient.getFile({ _id: ObjectId(id), userId: ObjectId(userId) });
+  console.log(id, userId, file);
   if (!file) {
     res.status(404).send({ error: 'Not found' });
     return;
@@ -109,7 +110,7 @@ const getShow = async (req, res) => {
 
 const getIndex = async (req, res) => {
   const authToken = req.headers['x-token'];
-  let { parentId, page } = req.params;
+  let { parentId, page } = req.query;
 
   const userId = await redisClient.get(`auth_${authToken}`);
   if (!userId) {
@@ -123,8 +124,7 @@ const getIndex = async (req, res) => {
     return;
   }
 
-  const parent = await dbClient.getFile(parentId);
-  console.log(parent);
+  const parent = await dbClient.getFile({ _id: ObjectId(parentId) });
   if (!parent) {
     parentId = 0;
   }
