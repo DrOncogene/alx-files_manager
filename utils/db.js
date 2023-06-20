@@ -50,14 +50,18 @@ class DBClient {
   }
 
   async getFile(queryObj) {
-    console.log(queryObj);
     return this.CLIENT.db().collection('files').findOne(queryObj);
   }
 
   async getUserFiles(userId, parentId, page) {
-    console.log(userId, parentId, page);
+    let matcher;
+    if (parentId === 0) {
+      matcher = { userId: ObjectId(userId), parentId: '0' };
+    } else {
+      matcher = { userId: ObjectId(userId), parentId: ObjectId(parentId) }
+    }
     return this.CLIENT.db().collection('files').aggregate([
-      { $match: { userId: ObjectId(userId), parentId: ObjectId(parentId) } },
+      { $match: matcher },
       { $skip: page === 0 ? 0 : page * MAX_PAGE_SIZE },
       { $limit: MAX_PAGE_SIZE },
       { $set: { id: '$_id' } },

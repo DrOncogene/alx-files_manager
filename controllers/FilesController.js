@@ -99,7 +99,6 @@ const getShow = async (req, res) => {
 
   const { id } = req.params;
   const file = await dbClient.getFile({ _id: ObjectId(id), userId: ObjectId(userId) });
-  console.log(id, userId, file);
   if (!file) {
     res.status(404).send({ error: 'Not found' });
     return;
