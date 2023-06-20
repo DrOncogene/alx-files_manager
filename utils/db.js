@@ -1,6 +1,8 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import process from 'process';
 
+const MAX_PAGE_SIZE = 20;
+
 class DBClient {
   constructor() {
     const HOST = process.env.DB_HOST || 'localhost';
@@ -48,8 +50,18 @@ class DBClient {
   }
 
   async getFile(id) {
-    if (!id) return null;
+    if (id === null || id === undefined) return null;
     return this.CLIENT.db().collection('files').findOne({ _id: ObjectId(id) });
+  }
+
+  async getUserFiles(userId, parentId, page) {
+    return this.CLIENT.db().collection('files').aggregate([
+      { $match: { userId, parentId } },
+      { $skip: page === 0 ? 0 : page * MAX_PAGE_SIZE },
+      { $limit: MAX_PAGE_SIZE },
+      { $set: { id: '$_id' } },
+      { $unset: '_id' },
+    ]);
   }
 
   async addFile(fileObj) {
