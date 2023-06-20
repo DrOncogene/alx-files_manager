@@ -58,7 +58,7 @@ class DBClient {
     if (parentId === 0) {
       matcher = { userId: ObjectId(userId), parentId: '0' };
     } else {
-      matcher = { userId: ObjectId(userId), parentId: ObjectId(parentId) }
+      matcher = { userId: ObjectId(userId), parentId: ObjectId(parentId) };
     }
     return this.CLIENT.db().collection('files').aggregate([
       { $match: matcher },
