@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidV4 } from 'uuid';
+import mime from 'mime-types';
 import { ObjectId } from 'mongodb';
 import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
@@ -206,10 +207,39 @@ const putUnpublish = async (req, res) => {
   res.send(updatedFile);
 };
 
+const getFile = async (req, res) => {
+  const authToken = req.headers['x-token'];
+  const { id } = req.params;
+  const userId = await redisClient.get(`auth_${authToken}`);
+
+  const user = await dbClient.getUser({ _id: ObjectId(userId) });
+  const file = await dbClient.getFile({ _id: ObjectId(id) });
+  if (!file || !file.isPublic || !user || file.userId.toString() !== userId) {
+    res.status(404).send({ error: 'Not found' });
+    return;
+  }
+  if (file.type === 'folder') {
+    res.status(400).send({ error: "A folder doesn't have content" });
+    return;
+  }
+
+  try {
+    /* eslint-disable no-bitwise */
+    fs.accessSync(file.localPath, (fs.constants.F_OK | fs.constants.R_OK));
+    const mimeType = mime.lookup(file.name);
+    const content = fs.readFileSync(file.localPath, { encoding: 'utf-8' });
+    res.set('content-type', mimeType);
+    res.send(content);
+  } catch (err) {
+    res.status(404).send({ error: 'Not found' });
+  }
+};
+
 export {
   postUpload,
   getShow,
   getIndex,
   putPublish,
   putUnpublish,
+  getFile,
 };
