@@ -54,6 +54,7 @@ class DBClient {
   }
 
   async getUserFiles(userId, parentId, page) {
+    console.log(parentId);
     let matcher;
     if (parentId === 0) {
       matcher = { userId: ObjectId(userId), parentId: '0' };
@@ -80,10 +81,15 @@ class DBClient {
         type: datalessFile.type,
         parentId: datalessFile.parentId,
         isPublic: datalessFile.isPublic,
-        data,
+        localPath: datalessFile.localPath,
       };
     }
     return null;
+  }
+
+  async updateFile(id, update) {
+    const res = await this.CLIENT.db().collection('files').updateOne({ _id: id }, { $set: update });
+    return res.result.ok;
   }
 }
 

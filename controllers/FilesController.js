@@ -54,9 +54,8 @@ const postUpload = async (req, res) => {
       userId: ObjectId(userId),
       name,
       type,
-      parentId: ObjectId(parentId),
+      parentId: parentId ? ObjectId(parentId) : 0,
       isPublic,
-      data,
     });
   } else {
     const filesDir = path.join(process.env.FOLDER_PATH || '/tmp/files_manager');
@@ -72,9 +71,8 @@ const postUpload = async (req, res) => {
       userId: ObjectId(userId),
       name,
       type,
-      parentId: ObjectId(parentId),
+      parentId: parentId ? ObjectId(parentId) : 0,
       isPublic,
-      data,
       localPath: `${filePath}`,
     });
   }
@@ -104,6 +102,9 @@ const getShow = async (req, res) => {
     return;
   }
 
+  file.id = file._id.toString();
+  delete file._id;
+
   res.send(file);
 };
 
@@ -124,9 +125,13 @@ const getIndex = async (req, res) => {
   }
 
   const parent = await dbClient.getFile({ _id: ObjectId(parentId) });
-  if (!parent) {
+  if (parentId && !parent) {
+    res.send([]);
+    return;
+  } if (!parentId) {
     parentId = 0;
   }
+
   if (!page) {
     page = 0;
   }
@@ -141,8 +146,70 @@ const getIndex = async (req, res) => {
   res.send(userFiles);
 };
 
+const putPublish = async (req, res) => {
+  const authToken = req.headers['x-token'];
+
+  const userId = await redisClient.get(`auth_${authToken}`);
+  if (!userId) {
+    res.status(401).send({ error: 'Unauthorized' });
+    return;
+  }
+
+  const user = await dbClient.getUser({ _id: ObjectId(userId) });
+  if (!user) {
+    res.status(401).send({ error: 'Unauthorized' });
+    return;
+  }
+
+  const { id } = req.params;
+  const file = await dbClient.getFile({ _id: ObjectId(id), userId: ObjectId(userId) });
+  if (!file) {
+    res.status(404).send({ error: 'Not found' });
+    return;
+  }
+
+  await dbClient.updateFile(file._id, { isPublic: true });
+  const updatedFile = await dbClient.getFile({ _id: file._id });
+  updatedFile.id = updatedFile._id.toString();
+  delete updatedFile._id;
+
+  res.send(updatedFile);
+};
+
+const putUnpublish = async (req, res) => {
+  const authToken = req.headers['x-token'];
+
+  const userId = await redisClient.get(`auth_${authToken}`);
+  if (!userId) {
+    res.status(401).send({ error: 'Unauthorized' });
+    return;
+  }
+
+  const user = await dbClient.getUser({ _id: ObjectId(userId) });
+  if (!user) {
+    res.status(401).send({ error: 'Unauthorized' });
+    return;
+  }
+
+  const { id } = req.params;
+  const file = await dbClient.getFile({ _id: ObjectId(id), userId: ObjectId(userId) });
+  if (!file) {
+    res.status(404).send({ error: 'Not found' });
+    return;
+  }
+
+  await dbClient.updateFile(file._id, { isPublic: false });
+  const updatedFile = await dbClient.getFile({ _id: file._id });
+  updatedFile.id = updatedFile._id.toString();
+  delete updatedFile._id;
+
+  res.send(updatedFile);
+};
+
 export {
   postUpload,
   getShow,
   getIndex,
+  putPublish,
+  putUnpublish,
 };
